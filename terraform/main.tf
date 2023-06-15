@@ -64,10 +64,13 @@ resource "aws_instance" "minecraft_server" {
   vpc_security_group_ids = [aws_security_group.minecraft_server_sg.id]
   subnet_id = data.aws_subnet.available_subnets.id
 
+  # user_data = "${file("setup.sh")}"
+
   tags = {
     Name = "minecraft-server"
   }
 
+  # Store initial server setup script
   provisioner "file" {
     connection {
       host = "${self.public_ip}"
@@ -79,6 +82,19 @@ resource "aws_instance" "minecraft_server" {
     destination = "/home/ubuntu/setup.sh"
   }
 
+  # Store systemd service file (will be moved to correct location in setup script)
+  provisioner "file" {
+    connection {
+      host = "${self.public_ip}"
+      type = "ssh"
+      user = "ubuntu"
+      private_key = "${file("../secrets/MCServer.pem")}"
+    }
+    source = "../minecraft.service"
+    destination = "/home/ubuntu/minecraft.service"
+  }
+
+  # Execute setup script file
   provisioner "remote-exec" {
     connection {
       host = "${self.public_ip}"
