@@ -109,3 +109,14 @@ resource "aws_instance" "minecraft_server" {
     ]
   }
 }
+
+# Output IP to text file
+output "server_ip"{
+  description = "IP of the Minecraft Server"
+  value = aws_instance.minecraft_server.public_ip
+}
+
+resource "local_file" "server_ip" {
+  content = aws_instance.minecraft_server.public_ip
+  filename = "server_ip.txt"
+}
