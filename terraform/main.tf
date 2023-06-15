@@ -64,8 +64,6 @@ resource "aws_instance" "minecraft_server" {
   vpc_security_group_ids = [aws_security_group.minecraft_server_sg.id]
   subnet_id = data.aws_subnet.available_subnets.id
 
-  # user_data = "${file("setup.sh")}"
-
   tags = {
     Name = "minecraft-server"
   }
@@ -104,8 +102,8 @@ resource "aws_instance" "minecraft_server" {
     }
 
     inline = [
-      "chmod +x /home/ubuntu/setup.sh",
-      "sudo /home/ubuntu/setup.sh"
+      "sudo chmod +x /home/ubuntu/setup.sh",
+      "sudo /bin/bash /home/ubuntu/setup.sh"
     ]
   }
 }
@@ -114,9 +112,6 @@ resource "aws_instance" "minecraft_server" {
 output "server_ip"{
   description = "IP of the Minecraft Server"
   value = aws_instance.minecraft_server.public_ip
-}
 
-resource "local_file" "server_ip" {
-  content = aws_instance.minecraft_server.public_ip
-  filename = "server_ip.txt"
+  depends_on = [aws_instance.minecraft_server]
 }
